@@ -7,6 +7,6 @@ http://mapas.ammvi.org.br/layers/ammvi%3Abairros
 
 Foi utilizados os seguintes pacotes no projeto:
 
-NetTopologySuite.IO.GeoJSON - Manipulação do GeoJson
-Newtonsoft.Json - Manipulaçao (Desserialização do Json)
+NetTopologySuite.IO.GeoJSON - Manipulação do GeoJson <br/>
+Newtonsoft.Json - Manipulaçao (Desserialização do Json) <br/>
 GMap.NET.WinForms
