@@ -77,21 +77,35 @@ namespace WindowsFormsApp3
         public System.Drawing.Color RetornaCorAleatoria()
         {
             Random random = new Random();
-            int r = random.Next(0,255);
-            int g = random.Next(0,255);
-            int b = random.Next(0,255);
+            int r = random.Next(0, 255);
+            int g = random.Next(0, 255);
+            int b = random.Next(0, 255);
             //int a = random.Next(0,255);
-            return Color.FromArgb(50,r, g, b);
+            return Color.FromArgb(50, r, g, b);
         }
         public Form1()
         {
             InitializeComponent();
+
+        }
+
+        private void GerarMapa()
+        {
             gMapControl1.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
+            gMapControl1.Overlays.Clear();
 
             WebClient client = new WebClient();
             ////Download de um arquivo JSON
-            string geoJson = client.DownloadString("http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature");
+
+            string url;
+
+            if (comboBox1.SelectedIndex == 0)
+                url = ("http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature");
+            else
+                url = "http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros_wgs84&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature";
+
+            string geoJson = client.DownloadString(url);
 
             GeoJsonReader reader = new GeoJsonReader();
             FeatureCollection result = reader.Read<FeatureCollection>(geoJson);
@@ -108,23 +122,25 @@ namespace WindowsFormsApp3
                     points.Add(new PointLatLng(coordernada.Y, coordernada.X));
                 }
 
-                GMapPolygon polygon = new GMapPolygon(points, bairro.Attributes["Nome"].ToString());
+                GMapPolygon polygon = new GMapPolygon(points, bairro.Attributes.Exists("Nome") ? bairro.Attributes["Nome"].ToString() : bairro.Attributes["Layer"].ToString());
                 polygon.Fill = new SolidBrush(RetornaCorAleatoria());
                 polygon.Stroke = new Pen(Color.Red, 1);
                 polygons.Polygons.Add(polygon);
-                polygon.Name = bairro.Attributes["Nome"].ToString();
+                polygon.Name = bairro.Attributes.Exists("Nome") ? bairro.Attributes["Nome"].ToString() : bairro.Attributes["Layer"].ToString();
 
-                if (bairro.Attributes["Nome"].ToString() == "CENTRO")
+                if (polygon.Name == "CENTRO")
                 {
-                    gMapControl1.Position = new PointLatLng(polygon.Points[0].Lat,polygon.Points[0].Lng);
-                    polygon.Fill = new SolidBrush(Color.FromArgb(50,100,0,0));
+                    gMapControl1.Position = new PointLatLng(polygon.Points[0].Lat, polygon.Points[0].Lng);
+                    polygon.Fill = new SolidBrush(Color.FromArgb(50, 100, 0, 0));
                 }
                 gMapControl1.Overlays.Add(polygons);
 
             }
+        }
 
-
-
+        private void button1_Click(object sender, EventArgs e)
+        {
+            GerarMapa();
         }
     }
 

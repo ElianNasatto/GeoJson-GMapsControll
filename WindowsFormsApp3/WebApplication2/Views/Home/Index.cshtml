@@ -1,0 +1,17 @@
+﻿@using WebApplication2.maps
+<script>
+
+    @{ 
+
+        var map = new GoogleMapas().RetornaMapa();
+        map.ShowMapForMvc("mapdiv");
+
+    }
+</script>
+    
+    
+
+
+<br />
+<br />
+<div id="mapdiv" style="width:600px;height:600px;"></div>
