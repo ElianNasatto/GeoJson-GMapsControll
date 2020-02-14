@@ -98,12 +98,29 @@ namespace WindowsFormsApp3
             WebClient client = new WebClient();
             ////Download de um arquivo JSON
 
-            string url;
-
-            if (comboBox1.SelectedIndex == 0)
-                url = ("http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature");
-            else
-                url = "http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros_wgs84&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature";
+            string url = string.Empty;
+            switch (comboBox1.SelectedIndex)
+            {
+                //Blumenau
+                case 0:
+                    url = ("http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature");
+                    break;
+                //Indaial
+                case 1:
+                    url = "http://mapas.ammvi.org.br/geoserver/wfs?srsName=EPSG%3A4326&typename=ammvi%3Abairros_wgs84&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature";
+                    break;
+                //Alagoas
+                case 2:
+                    url = "http://dados.al.gov.br/dataset/f292adf1-2c8c-4f45-835d-dd43946b13ad/resource/86a10827-fd51-46ec-aca7-9f65583dfa80/download/bairrosgeojson.geojson";
+                    break;
+                //Fortaleza
+                case 3:
+                    url = "https://dados.fortaleza.ce.gov.br/dataset/8d20208f-25d6-4ca3-b0bc-1b9b371bd062/resource/781b13ec-b479-4b97-a742-d3b7144672ee/download/limitebairro.json";
+                    break;
+                case 4:
+                    url = "http://dados.recife.pe.gov.br/dataset/c1f100f0-f56f-4dd4-9dcc-1aa4da28798a/resource/e43bee60-9448-4d3d-92ff-2378bc3b5b00/download/bairros.geojson";
+                    break;
+            }
 
             string geoJson = client.DownloadString(url);
 
@@ -122,17 +139,36 @@ namespace WindowsFormsApp3
                     points.Add(new PointLatLng(coordernada.Y, coordernada.X));
                 }
 
-                GMapPolygon polygon = new GMapPolygon(points, bairro.Attributes.Exists("Nome") ? bairro.Attributes["Nome"].ToString() : bairro.Attributes["Layer"].ToString());
+                string nomeBairro = string.Empty;
+
+                if (bairro.Attributes.Exists("Nome"))
+                    nomeBairro = bairro.Attributes["Nome"].ToString();
+
+                if (bairro.Attributes.Exists("Layer"))
+                    nomeBairro = bairro.Attributes["Layer"].ToString();
+
+                if (bairro.Attributes.Exists("NOME"))
+                    nomeBairro = bairro.Attributes["NOME"].ToString();
+
+                if (bairro.Attributes.Exists("Bairro"))
+                    nomeBairro = bairro.Attributes["Bairro"].ToString();
+
+                if (bairro.Attributes.Exists("bairro_nome_ca"))
+                    nomeBairro = bairro.Attributes["bairro_nome_ca"].ToString();
+
+                GMapPolygon polygon = new GMapPolygon(points, nomeBairro);
                 polygon.Fill = new SolidBrush(RetornaCorAleatoria());
                 polygon.Stroke = new Pen(Color.Red, 1);
                 polygons.Polygons.Add(polygon);
-                polygon.Name = bairro.Attributes.Exists("Nome") ? bairro.Attributes["Nome"].ToString() : bairro.Attributes["Layer"].ToString();
+                polygon.Name = nomeBairro;
+
 
                 if (polygon.Name == "CENTRO")
                 {
                     gMapControl1.Position = new PointLatLng(polygon.Points[0].Lat, polygon.Points[0].Lng);
                     polygon.Fill = new SolidBrush(Color.FromArgb(50, 100, 0, 0));
                 }
+
                 gMapControl1.Overlays.Add(polygons);
 
             }
