@@ -178,6 +178,33 @@ namespace WindowsFormsApp3
         {
             GerarMapa();
         }
+
+        Bitmap bitMap;
+        Image image;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bitMap = new Bitmap(this.gMapControl1.Width, this.gMapControl1.Height);
+            gMapControl1.DrawToBitmap(bitMap, new Rectangle() { X = gMapControl1.Width, Y = gMapControl1.Height, Size = gMapControl1.Size });
+            image = gMapControl1.ToImage();
+            //Graphics graphics = this.gMapControl1.CreateGraphics();
+            //Graphics img = Graphics.FromImage(bitMap);
+            //img.CopyFromScreen(this.gMapControl1.Location.Y, this.gMapControl1.Location.X,0,0, this.gMapControl1.Size);
+            //printDocument1.Print();
+            SaveFileDialog save = new SaveFileDialog();
+            save.Filter = "JPG(*.JPG)|*.jpg";
+            save.FileName = "Mapa-" + comboBox1.SelectedItem.ToString();
+
+            if (save.ShowDialog() == DialogResult.OK)
+            {
+                image.Save(save.FileName);
+            }
+        }
+
+        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+        {
+            e.Graphics.DrawImage(image,0,0);
+
+        }
     }
 
 }
